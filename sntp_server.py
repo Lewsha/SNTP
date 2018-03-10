@@ -22,7 +22,7 @@ class SNTPPacket:
         self.flags = None
         self.stratum = 0x02  # Слой (уровень) нашего сервера (1 - первичный сервер, 2 - вторичный)
         self.poll_interval = data[2]   # Интервал между сообщениями от сервера копируется из запроса клиента
-        self.precision = -0x5   # Точность устанавливается как -ln от значащих бит сервера справа от запятой
+        self.precision = -0x6   # Точность устанавливается как -ln от значащих бит сервера справа от запятой
         self.ROOT_DELAY = 0.0  # Время приема-передачи (RTT)
         self.ROOT_DISPERSION = 0x00  # Номинальная ошибка
         self.reference_identifier = 2130706433  # Идентификатор эталона
@@ -106,7 +106,7 @@ if __name__ == "__main__":
                 print("Connection from {} accepted.".format(address))
                 timestamp = datetime.timestamp(datetime.utcnow())
                 unpack_data = struct.unpack("!12I", data)
-                originate_timestamp = unpack_data[10] + unpack_data[11] * 2**32
+                originate_timestamp = unpack_data[10] + (unpack_data[11] / (2**32))
                 packet = SNTPPacket(data, timestamp, originate_timestamp)
                 reply = packet.packaging()
                 serv.sendto(reply, address)
